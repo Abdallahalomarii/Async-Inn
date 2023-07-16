@@ -40,6 +40,6 @@
 
 - ### Amenities table: 
     
-       this is a pure join table with Composite key the amenity id and the room id, 
-       so lets explain the data flow here, this each room can have multi amenity but cann't take duplicated amenity
-       you can't find a room with two coffe maker for example, and many amenity can belong to single room. 
+  this is a pure join table with Composite key the amenity id and the room id, 
+  so lets explain the data flow here, this each room can have multi amenity but cann't take duplicated amenity
+  you can't find a room with two coffe maker for example, and many amenity can belong to single room. 
