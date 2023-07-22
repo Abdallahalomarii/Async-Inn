@@ -1,4 +1,4 @@
-# Async-Inn
+# As7ync-Inn
 
 ## Abdallah ALomari 16/7/2023 
 
@@ -43,3 +43,15 @@
   this is a pure join table with Composite key the amenity id and the room id, 
   so lets explain the data flow here, this each room can have multi amenity but cann't take duplicated amenity
   you can't find a room with two coffe maker for example, and many amenity can belong to single room. 
+
+
+--- 
+- ## Lab13
+
+    - I created a Three interfaces for the modals that i have, Also i created a CRUD methods for all of them inside the interface.
+    i also craeted 3 services as the models name and inherited each service with own interface and cmpleted the implemnation for the 
+    interface inside the services classes. 
+    once i finished i edited the controllers that i have from lab 12 to take a interface insted of the Datacontext 
+    and i tested the data through the `postman` and it is working well i can Do CRUD Clearly. 
+
+    - ![Postman](postman.png)
