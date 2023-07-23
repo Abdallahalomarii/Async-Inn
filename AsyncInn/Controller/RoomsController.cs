@@ -50,12 +50,8 @@ namespace AsyncInn.Controller
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRoom(int id, Room room)
         {
-            if (id != room.ID)
-            {
-                return BadRequest();
-            }
 
-            var updateRoom =await _context.UpdateRoom(id,room);
+            var updateRoom = await _context.UpdateRoom(id,room);
 
             return Ok(updateRoom);
         }
