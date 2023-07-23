@@ -54,12 +54,8 @@ namespace AsyncInn.Controller
         // PUT: api/Hotels/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutHotel(int id, Hotel hotel)
+        public async Task<IActionResult> PutHotel([FromRoute]int id, [FromBody] Hotel hotel)
         {
-            if (id != hotel.ID)
-            {
-                return BadRequest();
-            }
 
            var updateHotel = await _context.UpdateHotel(id, hotel);
 

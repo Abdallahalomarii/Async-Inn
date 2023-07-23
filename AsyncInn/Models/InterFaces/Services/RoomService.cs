@@ -47,13 +47,17 @@ namespace AsyncInn.Models.InterFaces.Services
 
         public async Task<Room> UpdateRoom(int id, Room room)
         {
-            room = await GetRoomById(id);
+            var roomValue = await _room.Room.FindAsync(id);
 
-            _room.Entry(room).State = EntityState.Modified;
+            if (roomValue != null)
+            {
+                roomValue.Name = room.Name;
+                roomValue.Layout = room.Layout;
 
-            await _room.SaveChangesAsync();
+                await _room.SaveChangesAsync();
+            }
 
-            return room;
+            return roomValue;
         }
     }
 }

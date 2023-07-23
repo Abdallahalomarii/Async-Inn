@@ -54,17 +54,17 @@ namespace AsyncInn.Controller
         // PUT: api/Amenities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAmenity(int id, Amenity amenity)
+        public async Task<IActionResult> PutAmenity([FromRoute] int id, [FromBody] Amenity amenity)
         {
-            if (id != amenity.Id)
-            {
-                return BadRequest();
-            }
+            //if (id != amenity.Id)
+            //{
+            //    return BadRequest();
+            //}
 
-                await _context.UpdateAmenity(id, amenity);
+            var amenities = await _context.UpdateAmenity(id, amenity);
 
-            return NoContent();
-        }
+            return Ok(amenities);
+         }
 
         // POST: api/Amenities
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -76,7 +76,7 @@ namespace AsyncInn.Controller
               return Problem("Entity set 'AsyncInnDbContext.Amenity'  is null.");
           }
             await _context.Create(amenity);
-            return CreatedAtAction("GetAmenity", new { id = amenity.Id }, amenity);
+            return CreatedAtAction(nameof(GetAmenity), new { id = amenity.Id }, amenity);
         }
 
         // DELETE: api/Amenities/5
