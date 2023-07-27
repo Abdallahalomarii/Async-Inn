@@ -2,6 +2,7 @@ using AsyncInn.Data;
 using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.InterFaces.Services;
+using AsyncInn.Models.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace AsyncInn
@@ -13,6 +14,10 @@ namespace AsyncInn
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
 
+
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+       options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+     );
 
             string? connString = builder.Configuration.GetConnectionString("DefaultConnection");
 
