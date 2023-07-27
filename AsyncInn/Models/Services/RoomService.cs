@@ -1,14 +1,14 @@
 ﻿using AsyncInn.Data;
-using AsyncInn.Models.InterFaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace AsyncInn.Models.Services
+namespace AsyncInn.Models.InterFaces.Services
 {
-    public class RoomServices : IRoom
+    public class RoomService : IRoom
     {
+
         private readonly AsyncInnDbContext _room;
 
-        public RoomServices(AsyncInnDbContext room)
+        public RoomService(AsyncInnDbContext room)
         {
             _room = room;
         }
@@ -40,20 +40,24 @@ namespace AsyncInn.Models.Services
 
         public async Task<List<Room>> GetRooms()
         {
-            var rooms = await _room.Room.ToListAsync();
+            var rooms = await _room.Room.Include(roomAmenities => roomAmenities.RoomAmenities).ThenInclude(amenity => amenity.Amenity).ToListAsync();
 
             return rooms;
         }
 
         public async Task<Room> UpdateRoom(int id, Room room)
         {
-            room = await GetRoomById(id);
+            var roomValue = await _room.Room.FindAsync(id);
 
-            _room.Entry(room).State = EntityState.Modified;
+            if (roomValue != null)
+            {
+                roomValue.Name = room.Name;
+                roomValue.Layout = room.Layout;
 
-            await _room.SaveChangesAsync();
+                await _room.SaveChangesAsync();
+            }
 
-            return room;
+            return roomValue;
         }
     }
 }

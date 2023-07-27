@@ -1,5 +1,6 @@
 ﻿using AsyncInn.Data;
 using AsyncInn.Models.InterFaces;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace AsyncInn.Models.Services
@@ -14,6 +15,7 @@ namespace AsyncInn.Models.Services
         }
         public async Task<Hotel> Create(Hotel hotel)
         {
+
             _hotel.Hotel.Add(hotel);
 
             await _hotel.SaveChangesAsync();
@@ -26,6 +28,7 @@ namespace AsyncInn.Models.Services
             Hotel hotel = await GetHotelById(id);
 
             _hotel.Entry<Hotel>(hotel).State = EntityState.Deleted;
+
 
             await _hotel.SaveChangesAsync();
         }
@@ -43,11 +46,15 @@ namespace AsyncInn.Models.Services
 
             return hotels;
         }
-
+        /// <summary>
+        /// the whole record should be updated
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="hotel"></param>
+        /// <returns></returns>
         public async Task<Hotel> UpdateHotel(int id, Hotel hotel)
         {
-            hotel = await GetHotelById(id);
-
+            hotel.ID = id;
             _hotel.Entry<Hotel>(hotel).State = EntityState.Modified;
 
             await _hotel.SaveChangesAsync();
