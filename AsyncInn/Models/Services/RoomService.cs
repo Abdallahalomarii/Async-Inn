@@ -13,6 +13,8 @@ namespace AsyncInn.Models.InterFaces.Services
             _room = room;
         }
 
+       
+
         public async Task<Room> Create(Room room)
         {
             _room.Room.Add(room);
@@ -38,12 +40,36 @@ namespace AsyncInn.Models.InterFaces.Services
             return room;
         }
 
-        public async Task<List<Room>> GetRooms()
-        {
-            var rooms = await _room.Room.Include(roomAmenities => roomAmenities.RoomAmenities).ThenInclude(amenity => amenity.Amenity).ToListAsync();
+       public async Task<List<Room>> GetRooms()
+{
+    var rooms = await _room.Room
+        .Include(r => r.RoomAmenities)
+            .ThenInclude(ra => ra.Amenity) 
+        .ToListAsync();
 
-            return rooms;
-        }
+    var result = rooms.Select(r => new Room
+    {
+        ID = r.ID,
+        Name = r.Name,
+        Layout = r.Layout,
+        RoomAmenities = r.RoomAmenities.Select(ra => new RoomAmenities
+        {
+            RoomID = ra.RoomID,
+            AmenityId = ra.AmenityId,
+            Amenity = new Amenity
+            {
+                Id = ra.Amenity.Id,
+                Name = ra.Amenity.Name,
+            }
+            
+            
+        }).ToList()
+    }).ToList();
+
+    return result;
+}
+
+
 
         public async Task<Room> UpdateRoom(int id, Room room)
         {
@@ -58,6 +84,24 @@ namespace AsyncInn.Models.InterFaces.Services
             }
 
             return roomValue;
+        }
+
+        public async Task<RoomAmenities> AddAmenityToRoom(int RoomID, int AmenityId)
+        {
+            var addAmenityToRoom = new RoomAmenities { RoomID = RoomID, AmenityId = AmenityId };
+            _room.RoomAmenities.Add(addAmenityToRoom);
+            await _room.SaveChangesAsync();
+            return addAmenityToRoom;
+        }
+
+        public async Task RemoveAmenityFromRoom(int roomId, int amenityId)
+        {
+            var removedRoomsAmenity = await _room.RoomAmenities.FirstOrDefaultAsync(roomAmenities => roomAmenities.RoomID == roomId && roomAmenities.AmenityId == amenityId);
+
+            _room.Entry<RoomAmenities>(removedRoomsAmenity).State = EntityState.Deleted;
+
+            await _room.SaveChangesAsync();
+
         }
     }
 }

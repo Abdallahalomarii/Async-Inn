@@ -1,5 +1,6 @@
 ﻿using AsyncInn.Data;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol;
 
 namespace AsyncInn.Models.InterFaces.Services
 {
@@ -34,9 +35,35 @@ namespace AsyncInn.Models.InterFaces.Services
 
         public async Task<List<Amenity>> GetAmenities()
         {
-            var amenities = await _amenity.Amenity.ToListAsync();
 
-            return amenities;
+            var amenities = await _amenity.Amenity
+                .Include(a => a.Rooms)
+                    .ThenInclude(ra => ra.Room) 
+                .ToListAsync();
+
+            var result = amenities.Select(a => new Amenity
+            {
+                Id = a.Id,
+                Name = a.Name,
+            
+                Rooms = a.Rooms.Select(ra => new RoomAmenities
+                {
+                    RoomID = ra.RoomID,
+                    AmenityId = ra.AmenityId,
+                    Room = new Room
+                    {
+                        ID = ra.Room.ID,
+                        Name = ra.Room.Name,
+                        Layout = ra.Room.Layout
+                        
+                    }
+                }).ToList()
+            }).ToList();
+
+            return result;
+
+
+
         }
 
         public async Task<Amenity> GetAmenityById(int id)
