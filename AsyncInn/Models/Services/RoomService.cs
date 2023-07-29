@@ -1,5 +1,7 @@
 ﻿using AsyncInn.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.Metrics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AsyncInn.Models.InterFaces.Services
 {
@@ -35,39 +37,67 @@ namespace AsyncInn.Models.InterFaces.Services
 
         public async Task<Room> GetRoomById(int id)
         {
-            Room? room = await _room.Room.FindAsync(id);
+            Room? room = await _room.Room
+                .Include(amenities => amenities.RoomAmenities)
+                .ThenInclude(amenity => amenity.Amenity)
+                .Include(hotelRooms=> hotelRooms.HotelRooms)
+                .ThenInclude(hotel=> hotel.Hotel)
+                .FirstOrDefaultAsync(rId => rId.ID == id);
 
             return room;
         }
 
-       public async Task<List<Room>> GetRooms()
-{
-    var rooms = await _room.Room
-        .Include(r => r.RoomAmenities)
-            .ThenInclude(ra => ra.Amenity) 
-        .ToListAsync();
-
-    var result = rooms.Select(r => new Room
-    {
-        ID = r.ID,
-        Name = r.Name,
-        Layout = r.Layout,
-        RoomAmenities = r.RoomAmenities.Select(ra => new RoomAmenities
+        public async Task<List<Room>> GetRooms()
         {
-            RoomID = ra.RoomID,
-            AmenityId = ra.AmenityId,
-            Amenity = new Amenity
-            {
-                Id = ra.Amenity.Id,
-                Name = ra.Amenity.Name,
-            }
-            
-            
-        }).ToList()
-    }).ToList();
+            var rooms = await _room.Room
+                .Include(r => r.RoomAmenities)
+                    .ThenInclude(ra => ra.Amenity)
+                .Include(hotelRooms => hotelRooms.HotelRooms)
+                .ThenInclude(hotel => hotel.Hotel)
+                .ToListAsync();
 
-    return result;
-}
+
+            var result = rooms.Select(r => new Room
+            {
+                ID = r.ID,
+                Name = r.Name,
+                Layout = r.Layout,
+                RoomAmenities = r.RoomAmenities.Select(ra => new RoomAmenities
+                {
+                    RoomID = ra.RoomID,
+                    AmenityId = ra.AmenityId,
+                    Amenity = new Amenity
+                    {
+                        Id = ra.Amenity.Id,
+                        Name = ra.Amenity.Name,
+                    },
+                    Room = null
+
+                }).ToList(),
+                HotelRooms = r.HotelRooms.Select(ra=> new HotelRoom
+                {
+                    HotelID =ra.HotelID,
+                    RoomID = ra.RoomID,
+                    RoomNumber = ra.RoomNumber, 
+                    Rate = ra.Rate,
+                    IsPetFriendly = ra.IsPetFriendly,
+                    Hotel = new Hotel
+                    {
+                        ID = ra.Hotel.ID,
+                        Name = ra.Hotel.Name,
+                        StreetAddress = ra.Hotel.StreetAddress,
+                        City = ra.Hotel.City,
+                        State = ra.Hotel.State,
+                        Country = ra.Hotel.Country,
+                        Phone = ra.Hotel.Phone
+                    }
+
+                }).ToList()
+
+            }).ToList();
+
+            return result;
+        }
 
 
 

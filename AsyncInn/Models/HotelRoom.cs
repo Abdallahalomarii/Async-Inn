@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Runtime.Serialization;
 
 namespace AsyncInn.Models
 {
@@ -15,8 +16,10 @@ namespace AsyncInn.Models
 
         public bool IsPetFriendly { get; set; }
 
-        public Room Room { get; set; }
+        [ForeignKey("RoomID")]
+        public Room? Room { get; set; }
 
-        public Hotel Hotel { get; set; }
+        [ForeignKey("HotelID")]
+        public Hotel? Hotel { get; set; }
     }
 }

@@ -58,7 +58,6 @@ namespace AsyncInn.Data
                     Keys.RoomNumber
                 }
                 );
-        
         }
         
     }
