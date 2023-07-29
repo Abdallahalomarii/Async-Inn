@@ -8,7 +8,8 @@ namespace AsyncInn.Models
         public int Layout { get; set; }
         
 
-        public virtual List<RoomAmenities> RoomAmenities { get; set; }
-        public virtual List<HotelRoom> HotelRooms { get; set; }
+        public  List<RoomAmenities> RoomAmenities { get; set; }
+
+        public  List<HotelRoom> HotelRooms { get; set; }
     }
 }
