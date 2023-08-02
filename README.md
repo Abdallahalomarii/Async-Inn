@@ -46,7 +46,7 @@
 
 
 --- 
-- ## Lab13
+- ## Lab13 InterFaces and DI
 
     - I created a Three interfaces for the modals that i have, Also i created a CRUD methods for all of them inside the interface.
     i also craeted 3 services as the models name and inherited each service with own interface and cmpleted the implemnation for the 
@@ -55,3 +55,49 @@
     and i tested the data through the `postman` and it is working well i can Do CRUD Clearly. 
 
     - ![Postman](postman.png)
+
+
+- ## Lab 14  Navigation Properites 
+
+    - i create a new 2 models which calls the jont entity table as you see in my ERD picture there 
+    is a many to many between `(Hotels,Rooms)` and we created a joint entity table model which calls a HotelRooms
+    and also we have a many to many between the `(Rooms,Amenity)` and we created a join pure table which calls 
+    RoomAmenities
+
+    - DataContext 
+    we modifeid it to add the new modles which is the RoomAmeneiteis and the HotelRooms 
+    and also we added the keys for each table 
+
+    - `Room`
+    inside the Room i modefied it and added a Navigation properties to take a list of room amenities 
+    and to take a list of HotelRooms 
+
+    - `Hotel`
+    inside the Hotel we make also a list of the HotelRoom model to show all of the room that was inside the Hotel
+
+    - `Amenity` 
+    i created a list of room amenities inside it to get all the amenitis that was inside one room
+
+   - ### the Lazy loading and Eager Loading 
+       in the GET request i edited the whole Gets methods to use Eager Loading and including the new navigation Properites in the json 
+
+
+- # Lab 16 DTO 
+
+    - I created A DTO classes for All Models without the RoomAmenities model 
+        and i edited the whole CRUD operations for all Services i have before to use the New DTO 
+        Models.
+
+    - Also Created a new DTO that's wasn't from the guidence of the lab 
+    which calls Add new Room, I Created this DTO to handle the Adding room insted of adding a list of Amenity 
+    or avoid any errors, i can add an amenity by id to the room from the post and because there is no room without 
+    the amenity so we can say it is required for the room.
+
+    - That's what i made so far so the summary : 
+        - now when i make a get Hotel I will get the hotelRoom from it and inside the HotelRoom
+        i have an Room that will be inside the Hotel and each room has own details with amenity and so one
+        and from the hotel room we gonna see the room details 
+
+        - and from the room the json will provide for me the Room detailes which is the amenity that rooms has 
+        
+        - and finally  we can get the ameniteis or any specific amenity that we want 

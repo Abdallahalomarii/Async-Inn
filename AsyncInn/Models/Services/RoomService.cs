@@ -1,4 +1,5 @@
 ﻿using AsyncInn.Data;
+using AsyncInn.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -10,110 +11,193 @@ namespace AsyncInn.Models.InterFaces.Services
 
         private readonly AsyncInnDbContext _room;
 
-        public RoomService(AsyncInnDbContext room)
+        private readonly IAmenity _amenity;
+
+        public RoomService(AsyncInnDbContext room, IAmenity amenity)
         {
             _room = room;
+            _amenity = amenity;
         }
 
-       
 
-        public async Task<Room> Create(Room room)
+
+        public async Task<RoomDTO> Create(AddNewRoomDTO room)
         {
-            _room.Room.Add(room);
+            //_room.Room.Add(room);
+
+            //await _room.SaveChangesAsync();
+
+            //return room;
+
+            Room newRoom = new Room()
+            {
+                ID = room.ID,
+                Name = room.Name,
+                Layout = room.Layout
+            };
+            _room.Entry(newRoom).State = EntityState.Added;
 
             await _room.SaveChangesAsync();
+            room.ID = newRoom.ID;
 
-            return room;
+            var getAmenity = await _amenity.GetAmenityById(room.AmenityId);
+
+            await AddAmenityToRoom(newRoom.ID, getAmenity.Id);
+
+            RoomDTO newRoomWithAmenity = await GetRoomById(room.ID);
+
+            return newRoomWithAmenity;
+
+
+
         }
 
         public async Task DeleteRoom(int id)
         {
-            Room room = await GetRoomById(id);
+            //Room room = await GetRoomById(id);
 
-            _room.Entry<Room>(room).State = EntityState.Deleted;
+            //_room.Entry<Room>(room).State = EntityState.Deleted;
+
+            //await _room.SaveChangesAsync();
+
+            RoomDTO room = await GetRoomById(id);
+
+            _room.Entry<RoomDTO>(room).State = EntityState.Deleted;
 
             await _room.SaveChangesAsync();
         }
 
-        public async Task<Room> GetRoomById(int id)
+        public async Task<RoomDTO> GetRoomById(int id)
         {
-            Room? room = await _room.Room
-                .Include(amenities => amenities.RoomAmenities)
-                .ThenInclude(amenity => amenity.Amenity)
-                .Include(hotelRooms=> hotelRooms.HotelRooms)
-                .ThenInclude(hotel=> hotel.Hotel)
-                .FirstOrDefaultAsync(rId => rId.ID == id);
+            //Room? room = await _room.Room
+            //    .Include(amenities => amenities.RoomAmenities)
+            //    .ThenInclude(amenity => amenity.Amenity)
+            //    .Include(hotelRooms=> hotelRooms.HotelRooms)
+            //    .ThenInclude(hotel=> hotel.Hotel)
+            //    .FirstOrDefaultAsync(rId => rId.ID == id);
+
+            //return room;
+
+            RoomDTO? room = await _room.Room
+                .Select(r => new RoomDTO
+                {
+                    ID = r.ID,
+                    Name = r.Name,
+                    Layout = r.Layout,
+                    Amenities = r.RoomAmenities
+                    .Select(am => new AmenityDTO
+                    {
+                        Id = am.Amenity.Id,
+                        Name = am.Amenity.Name
+
+                    }).ToList()
+                }).FirstOrDefaultAsync(x => x.ID == id);
 
             return room;
         }
 
-        public async Task<List<Room>> GetRooms()
+        public async Task<List<RoomDTO>> GetRooms()
         {
-            var rooms = await _room.Room
-                .Include(r => r.RoomAmenities)
-                    .ThenInclude(ra => ra.Amenity)
-                .Include(hotelRooms => hotelRooms.HotelRooms)
-                .ThenInclude(hotel => hotel.Hotel)
-                .ToListAsync();
+            //var rooms = await _room.Room
+            //    .Include(r => r.RoomAmenities)
+            //        .ThenInclude(ra => ra.Amenity)
+            //    .Include(hotelRooms => hotelRooms.HotelRooms)
+            //    .ThenInclude(hotel => hotel.Hotel)
+            //    .ToListAsync();
 
 
-            var result = rooms.Select(r => new Room
-            {
-                ID = r.ID,
-                Name = r.Name,
-                Layout = r.Layout,
-                RoomAmenities = r.RoomAmenities.Select(ra => new RoomAmenities
+            //var result = rooms.Select(r => new Room
+            //{
+            //    ID = r.ID,
+            //    Name = r.Name,
+            //    Layout = r.Layout,
+            //    RoomAmenities = r.RoomAmenities.Select(ra => new RoomAmenities
+            //    {
+            //        RoomID = ra.RoomID,
+            //        AmenityId = ra.AmenityId,
+            //        Amenity = new Amenity
+            //        {
+            //            Id = ra.Amenity.Id,
+            //            Name = ra.Amenity.Name,
+            //        },
+            //        Room = null
+
+            //    }).ToList(),
+            //    HotelRooms = r.HotelRooms.Select(ra=> new HotelRoom
+            //    {
+            //        HotelID =ra.HotelID,
+            //        RoomID = ra.RoomID,
+            //        RoomNumber = ra.RoomNumber, 
+            //        Rate = ra.Rate,
+            //        IsPetFriendly = ra.IsPetFriendly,
+            //        Hotel = new Hotel
+            //        {
+            //            ID = ra.Hotel.ID,
+            //            Name = ra.Hotel.Name,
+            //            StreetAddress = ra.Hotel.StreetAddress,
+            //            City = ra.Hotel.City,
+            //            State = ra.Hotel.State,
+            //            Country = ra.Hotel.Country,
+            //            Phone = ra.Hotel.Phone
+            //        }
+
+            //    }).ToList()
+
+            //}).ToList();
+
+            //return result;
+
+           return await _room.Room
+                .Select(r => new RoomDTO
                 {
-                    RoomID = ra.RoomID,
-                    AmenityId = ra.AmenityId,
-                    Amenity = new Amenity
-                    {
-                        Id = ra.Amenity.Id,
-                        Name = ra.Amenity.Name,
-                    },
-                    Room = null
-
-                }).ToList(),
-                HotelRooms = r.HotelRooms.Select(ra=> new HotelRoom
+                    ID = r.ID,
+                    Name = r.Name,
+                    Layout = r.Layout,
+                    Amenities = r.RoomAmenities
+                .Select(am => new AmenityDTO
                 {
-                    HotelID =ra.HotelID,
-                    RoomID = ra.RoomID,
-                    RoomNumber = ra.RoomNumber, 
-                    Rate = ra.Rate,
-                    IsPetFriendly = ra.IsPetFriendly,
-                    Hotel = new Hotel
-                    {
-                        ID = ra.Hotel.ID,
-                        Name = ra.Hotel.Name,
-                        StreetAddress = ra.Hotel.StreetAddress,
-                        City = ra.Hotel.City,
-                        State = ra.Hotel.State,
-                        Country = ra.Hotel.Country,
-                        Phone = ra.Hotel.Phone
-                    }
+                    Id = am.Amenity.Id,
+                    Name = am.Amenity.Name
 
                 }).ToList()
+                }).ToListAsync();
 
-            }).ToList();
-
-            return result;
         }
 
 
 
-        public async Task<Room> UpdateRoom(int id, Room room)
+        public async Task<RoomDTO> UpdateRoom(int id, AddNewRoomDTO room)
         {
-            var roomValue = await _room.Room.FindAsync(id);
+            //var roomValue = await _room.Room.FindAsync(id);
 
-            if (roomValue != null)
+            //if (roomValue != null)
+            //{
+            //    roomValue.Name = room.Name;
+            //    roomValue.Layout = room.Layout;
+
+            //    await _room.SaveChangesAsync();
+            //}
+
+            //return roomValue;
+
+            Room updatingRoom = new Room()
             {
-                roomValue.Name = room.Name;
-                roomValue.Layout = room.Layout;
+                ID = id,
+                Name = room.Name,
+                Layout = room.Layout,
+            };
+            _room.Entry(updatingRoom).State = EntityState.Modified;
 
-                await _room.SaveChangesAsync();
-            }
+            await _room.SaveChangesAsync();
+            room.ID = updatingRoom.ID;
 
-            return roomValue;
+
+            await AddAmenityToRoom(id, room.AmenityId);
+
+            RoomDTO newRoomWithAmenity = await GetRoomById(id);
+
+            return newRoomWithAmenity;
+
         }
 
         public async Task<RoomAmenities> AddAmenityToRoom(int RoomID, int AmenityId)
