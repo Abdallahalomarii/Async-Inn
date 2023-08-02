@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using AsyncInn.Data;
 using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
+using AsyncInn.Models.DTO;
 
 namespace AsyncInn.Controller
 {
@@ -25,7 +26,7 @@ namespace AsyncInn.Controller
         // GET: api/HotelRooms
         [HttpGet]
         [Route("/api/Hotels/{hotelId}/Rooms")]
-        public async Task<ActionResult<IEnumerable<HotelRoom>>> GetHotelRooms([FromRoute] int hotelId)
+        public async Task<ActionResult<IEnumerable<HotelRoomDTO>>> GetHotelRooms([FromRoute] int hotelId)
         {
           if (_context == null)
           {
@@ -39,7 +40,7 @@ namespace AsyncInn.Controller
 
         // GET: api/HotelRooms/5
         [HttpGet("/api/Hotels/{hotelId}/Rooms/{roomNumber}")]
-        public async Task<ActionResult<HotelRoom>> GetHotelRoom(int hotelId, int roomNumber)
+        public async Task<ActionResult<HotelRoomDTO>> GetHotelRoom(int hotelId, int roomNumber)
         {
             var hotelRoom = await _context.GetHotelRoomsDetails(hotelId, roomNumber);
 
@@ -55,12 +56,10 @@ namespace AsyncInn.Controller
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut]
         [Route("/api/Hotels/{hotelId}/Rooms/{roomNumber}")]
-        public async Task<IActionResult> PutHotelRoom([FromRoute] int hotelId, [FromRoute] int roomNumber, [FromBody] HotelRoom hotelRoom)
+        public async Task<IActionResult> PutHotelRoom([FromRoute] int hotelId, [FromRoute] int roomNumber, [FromBody] HotelRoomDTO hotelRoom)
         {
            
             var updateHotelRoom = await _context.UpdateHotelRooms(hotelId,roomNumber, hotelRoom);
-
-            
 
             return Ok(updateHotelRoom);
         }
@@ -69,7 +68,7 @@ namespace AsyncInn.Controller
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         [Route("/api/Hotels/{hotelId}/Rooms")]
-        public async Task<ActionResult<HotelRoom>> PostHotelRoom(HotelRoom hotelRoom, int hotelId)
+        public async Task<ActionResult<HotelRoomDTO>> PostHotelRoom(HotelRoomDTO hotelRoom, int hotelId)
         {
             var addedHotelRoom = await _context.Create(hotelRoom, hotelId);
             return Ok(addedHotelRoom);

@@ -1,4 +1,5 @@
 ﻿using AsyncInn.Data;
+using AsyncInn.Models.DTO;
 using AsyncInn.Models.InterFaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,26 +26,92 @@ namespace AsyncInn.Models.Services
 
         public async Task DeleteHotel(int id)
         {
-            Hotel hotel = await GetHotelById(id);
+            HotelDTO hotel = await GetHotelById(id);
 
-            _hotel.Entry<Hotel>(hotel).State = EntityState.Deleted;
+            _hotel.Entry<HotelDTO>(hotel).State = EntityState.Deleted;
 
 
             await _hotel.SaveChangesAsync();
         }
 
-        public async Task<Hotel> GetHotelById(int id)
+        public async Task<HotelDTO> GetHotelById(int id)
         {
-            Hotel hotel = await _hotel.Hotel.FindAsync(id);
+            //Hotel hotel = await _hotel.Hotel.FindAsync(id);
 
-            return hotel;
+            //return hotel;
+            HotelDTO? HotelById = await _hotel.Hotel
+                .Select(h => new HotelDTO
+                {
+                    ID = h.ID,
+                    Name = h.Name,
+                    City = h.City,
+                    State = h.State,
+                    StreetAddress = h.StreetAddress,
+                    Phone = h.Phone,
+                    Rooms = h.HotelRooms.Select(hr => new HotelRoomDTO
+                    {
+                        HotelID = hr.HotelID,
+                        RoomNumber = hr.RoomNumber,
+                        Rate = hr.Rate,
+                        IsPetFriendly = hr.IsPetFriendly,
+                        RoomID = hr.RoomID,
+                        Room = new RoomDTO
+                        {
+                            ID = hr.Room.ID,
+                            Name = hr.Room.Name,
+                            Layout = hr.Room.Layout,
+                            Amenities = hr.Room.RoomAmenities.Select(am => new AmenityDTO()
+                            {
+                                Id = am.Amenity.Id,
+                                Name = am.Amenity.Name
+                            }).ToList()
+
+                        }
+
+                    }).ToList()
+                }).FirstOrDefaultAsync(x => x.ID == id);
+
+            return HotelById;
         }
 
-        public async Task<List<Hotel>> GetHotels()
+        public async Task<List<HotelDTO>> GetHotels()
         {
-            var hotels = await _hotel.Hotel.ToListAsync();
+            //var hotels = await _hotel.Hotel.ToListAsync();
 
-            return hotels;
+            //return hotels;
+
+            return await _hotel.Hotel
+                .Select(h => new HotelDTO
+                {
+                    ID = h.ID,
+                    Name = h.Name,
+                    City = h.City,
+                    State = h.State,
+                    StreetAddress = h.StreetAddress,
+                    Phone = h.Phone,
+                    Rooms = h.HotelRooms.Select(hr => new HotelRoomDTO
+                    {
+                        HotelID = hr.HotelID,
+                        RoomNumber = hr.RoomNumber,
+                        Rate = hr.Rate,
+                        IsPetFriendly = hr.IsPetFriendly,
+                        RoomID = hr.RoomID,
+                        Room = new RoomDTO
+                        {
+                            ID = hr.Room.ID,
+                            Name = hr.Room.Name,
+                            Layout = hr.Room.Layout,
+                            Amenities = hr.Room.RoomAmenities.Select(am => new AmenityDTO()
+                            {
+                                Id = am.Amenity.Id,
+                                Name = am.Amenity.Name
+                            }).ToList()
+                            
+                        }
+
+                    }).ToList()
+                })
+                .ToListAsync();
         }
         /// <summary>
         /// the whole record should be updated

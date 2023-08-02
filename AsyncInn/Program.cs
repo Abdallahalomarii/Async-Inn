@@ -33,6 +33,17 @@ namespace AsyncInn
 
             var app = builder.Build();
 
+            //app.UseSwagger(opt=>
+            //{
+            //    opt.RouteTemplate = "/api/{documentName}/swagger.json";
+            //});
+
+            //app.UseSwaggerUI(opt =>
+            //{
+            //    opt.SwaggerEndpoint("/api/v1/swagger.json", "AsyncIn API");
+            //    opt.RoutePrefix = "docs";
+            //});
+
             app.MapControllers();
 
             app.MapGet("/", () => "Hello World!");
