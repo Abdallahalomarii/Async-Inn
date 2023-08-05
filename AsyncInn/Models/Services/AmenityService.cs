@@ -15,6 +15,11 @@ namespace AsyncInn.Models.InterFaces.Services
             _amenity = amenity;
         }
 
+        /// <summary>
+        /// Adding an amenityDTO to Database
+        /// </summary>
+        /// <param name="amenity"></param>
+        /// <returns></returns>
         public async Task<AmenityDTO> Create(AmenityDTO amenity)
         {
             // _amenity.Amenity.Add(amenity);
@@ -35,7 +40,11 @@ namespace AsyncInn.Models.InterFaces.Services
             return amenity;
 
         }
-
+        /// <summary>
+        /// Delete an amenity from the database by amenity's id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task DeleteAmenity(int id)
         {
             AmenityDTO amenity = await GetAmenityById(id);
@@ -50,7 +59,10 @@ namespace AsyncInn.Models.InterFaces.Services
 
             await _amenity.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// get all amenity are assigned to the database
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<AmenityDTO>> GetAmenities()
         {
 
@@ -92,7 +104,11 @@ namespace AsyncInn.Models.InterFaces.Services
 
 
         }
-
+        /// <summary>
+        /// get an amenity from the database by the id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<AmenityDTO> GetAmenityById(int id)
         {
             //Amenity? amenity = await _amenity.Amenity.FindAsync(id);
@@ -108,19 +124,34 @@ namespace AsyncInn.Models.InterFaces.Services
             return amenityDto;
 
         }
-
-        public async Task<Amenity> UpdateAmenity(int id, Amenity amenity)
+        /// <summary>
+        /// update an amenity DTO to the database depend
+        /// on the id of the amenity that you want o update
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="amenity"></param>
+        /// <returns></returns>
+        public async Task<AmenityDTO> UpdateAmenity(int id, AmenityDTO amenity)
         {
-            var amenityValue = await _amenity.Amenity.FindAsync(id);
+            var amenityValue = await GetAmenityById(id);
 
             if (amenityValue != null)
             {
-                amenityValue.Name = amenity.Name;
+                Amenity updateAmenity = new Amenity()
+                {
+                    Id = amenityValue.Id,
+                    Name = amenity.Name
+                };
+                
+                _amenity.Entry<Amenity>(updateAmenity).State = EntityState.Modified;
 
                 await _amenity.SaveChangesAsync();
+
+                amenity.Id = updateAmenity.Id;
             }
 
-            return amenityValue;
+            return amenity;
         }
+
     }
 }

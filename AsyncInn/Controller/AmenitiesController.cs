@@ -55,7 +55,7 @@ namespace AsyncInn.Controller
         // PUT: api/Amenities/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAmenity([FromRoute] int id, [FromBody] Amenity amenity)
+        public async Task<IActionResult> PutAmenity([FromRoute] int id, [FromBody] AmenityDTO amenity)
         {
             //if (id != amenity.Id)
             //{

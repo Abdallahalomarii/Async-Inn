@@ -17,7 +17,13 @@ namespace AsyncInn.Models.Services
             _context = context;
             _room = room;
         }
-
+        
+        /// <summary>
+        /// Creating a new hotel Room DTO for a specific hotel 
+        /// </summary>
+        /// <param name="hotelRoom"></param>
+        /// <param name="hotelId"></param>
+        /// <returns></returns>
         public async Task<HotelRoomDTO> Create(HotelRoomDTO hotelRoom, int hotelId)
         {
             //var room = await _context.Room.FindAsync(hotelRoom.RoomID);
@@ -65,7 +71,12 @@ namespace AsyncInn.Models.Services
         }
 
        
-
+        /// <summary>
+        /// delete the hotel room by hotel id and the room number
+        /// </summary>
+        /// <param name="hotelId">number of the hotel</param>
+        /// <param name="roomNumber">number of the room</param>
+        /// <returns></returns>
         public async Task DeleteHotelRooms(int hotelId, int roomNumber)
         {
             var delete = await _context.HotelRooms
@@ -78,7 +89,11 @@ namespace AsyncInn.Models.Services
                 await _context.SaveChangesAsync();
             }
         }
-
+        /// <summary>
+        /// return all hotel rooms for only specific hotel depend on the hotel id
+        /// </summary>
+        /// <param name="hotelId"></param>
+        /// <returns></returns>
         public async Task<List<HotelRoomDTO>> GetHotelRooms(int hotelId)
         {
             //var hotelRooms = await _context.HotelRooms
@@ -150,20 +165,27 @@ namespace AsyncInn.Models.Services
                 .ToListAsync();
 
         }
-
+        /// <summary>
+        /// return a hotel room by the name of the hotel 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public async Task<List<HotelRoom>> GetHotelRoomsByName(string name)
         {
             var hotels = await _context.HotelRooms.Include(x => x.Hotel)
                 .Where(hn => hn.Hotel.Name == name)
                 .ToListAsync();
 
-
-
             return hotels;
 
 
         }
-
+        /// <summary>
+        /// return  the hotel room details by the room number and for the specific hotel id 
+        /// </summary>
+        /// <param name="hotelId"></param>
+        /// <param name="roomNumber"></param>
+        /// <returns></returns>
         public async Task<HotelRoomDTO> GetHotelRoomsDetails(int hotelId, int roomNumber)
         {
             //var hotelDetails = await _context.HotelRooms
@@ -200,7 +222,14 @@ namespace AsyncInn.Models.Services
 
             return hotelRoomById;
         }
-
+        /// <summary>
+        /// Updating the hotel room by passing hotel id and the room number 
+        /// and the new data of the hotel room DTO.
+        /// </summary>
+        /// <param name="hotelId"></param>
+        /// <param name="roomNumber"></param>
+        /// <param name="hotelRoom"></param>
+        /// <returns></returns>
         public async Task<HotelRoomDTO> UpdateHotelRooms(int hotelId, int roomNumber, HotelRoomDTO hotelRoom)
         {
             // update depend on the id that i will sent 
