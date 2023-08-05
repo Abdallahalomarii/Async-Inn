@@ -15,7 +15,7 @@ namespace AsyncInn.Models.Services
             _hotel = hotel;
         }
         /// <summary>
-        /// Create a new Hotel 
+        /// Create a new Hotel DTO
         /// </summary>
         /// <param name="hotel"></param>
         /// <returns></returns>
@@ -58,7 +58,7 @@ namespace AsyncInn.Models.Services
             await _hotel.SaveChangesAsync();
         }
         /// <summary>
-        /// get a the hotel info by passing the id of the hotel
+        /// get a the hotel DTO  by passing the id of the hotel
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
