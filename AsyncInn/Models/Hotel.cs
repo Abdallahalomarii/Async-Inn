@@ -16,7 +16,7 @@
 
         public string Phone { get; set; }
 
-        public List<HotelRoom> HotelRooms { get; set; }
+        public List<HotelRoom>? HotelRooms { get; set; }
 
     }
 }

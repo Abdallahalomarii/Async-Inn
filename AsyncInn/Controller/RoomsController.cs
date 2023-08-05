@@ -60,7 +60,7 @@ namespace AsyncInn.Controller
         // POST: api/Rooms
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<RoomDTO>> PostRoom(AddNewRoomDTO room)
+        public async Task<ActionResult<Room>> PostRoom(RoomDTO room)
         {
           if (_context == null)
           {
@@ -84,22 +84,22 @@ namespace AsyncInn.Controller
         }
 
         [HttpPost]
-        [Route("{RoomID}/Amenity/{amenityId}")]
-        public async Task<ActionResult<Room>> PostAmenityToRoom(int RoomID, int AmenityId)
+        [Route("{RoomID}/Amenity/{AmenityId}")]
+        public async Task<ActionResult<Room>> PostAmenityToRoom([FromRoute] int RoomID, [FromRoute] int AmenityId)
         {
             var x = await _context.AddAmenityToRoom(RoomID, AmenityId);
             return Ok(x);
         }
 
         [HttpDelete]
-        [Route("{RoomID}/Amenity/{amenityId}")]
-        public async Task<IActionResult> DeleteRoomsAmenities(int roomID, int amenityId)
+        [Route("{RoomID}/Amenity/{AmenityId}")]
+        public async Task<IActionResult> DeleteRoomsAmenities(int RoomID, int AmenityId)
         {
             if (_context == null)
             {
                 return NotFound();
             }
-            await _context.RemoveAmenityFromRoom(roomID, amenityId);
+            await _context.RemoveAmenityFromRoom(RoomID, AmenityId);
             return NoContent();
         }
 

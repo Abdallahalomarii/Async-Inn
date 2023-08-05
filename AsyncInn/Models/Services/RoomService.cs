@@ -19,9 +19,17 @@ namespace AsyncInn.Models.InterFaces.Services
             _amenity = amenity;
         }
 
+        public RoomService(AsyncInnDbContext room)
+        {
+            _room = room;
+        }
 
-
-        public async Task<RoomDTO> Create(AddNewRoomDTO room)
+        /// <summary>
+        /// Create A Room DTO
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
+        public async Task<Room> Create(RoomDTO room)
         {
             //_room.Room.Add(room);
 
@@ -35,23 +43,20 @@ namespace AsyncInn.Models.InterFaces.Services
                 Name = room.Name,
                 Layout = room.Layout
             };
-            _room.Entry(newRoom).State = EntityState.Added;
+             _room.Room.Add(newRoom);
 
             await _room.SaveChangesAsync();
-            room.ID = newRoom.ID;
-
-            var getAmenity = await _amenity.GetAmenityById(room.AmenityId);
-
-            await AddAmenityToRoom(newRoom.ID, getAmenity.Id);
-
-            RoomDTO newRoomWithAmenity = await GetRoomById(room.ID);
-
-            return newRoomWithAmenity;
+           
+            return newRoom;
 
 
 
         }
-
+        /// <summary>
+        /// Delete a Room by the id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task DeleteRoom(int id)
         {
             //Room room = await GetRoomById(id);
@@ -60,13 +65,17 @@ namespace AsyncInn.Models.InterFaces.Services
 
             //await _room.SaveChangesAsync();
 
-            RoomDTO room = await GetRoomById(id);
+            Room? room = await _room.Room.FindAsync(id);
 
-            _room.Entry<RoomDTO>(room).State = EntityState.Deleted;
+            _room.Entry<Room>(room).State = EntityState.Deleted;
 
             await _room.SaveChangesAsync();
         }
-
+        /// <summary>
+        /// get a room by the id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<RoomDTO> GetRoomById(int id)
         {
             //Room? room = await _room.Room
@@ -95,7 +104,10 @@ namespace AsyncInn.Models.InterFaces.Services
 
             return room;
         }
-
+        /// <summary>
+        /// return the all rooms 
+        /// </summary>
+        /// <returns></returns>
         public async Task<List<RoomDTO>> GetRooms()
         {
             //var rooms = await _room.Room
@@ -165,7 +177,12 @@ namespace AsyncInn.Models.InterFaces.Services
         }
 
 
-
+        /// <summary>
+        /// update the room by the id and the new room DTO
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="room"></param>
+        /// <returns></returns>
         public async Task<RoomDTO> UpdateRoom(int id, AddNewRoomDTO room)
         {
             //var roomValue = await _room.Room.FindAsync(id);
@@ -180,17 +197,20 @@ namespace AsyncInn.Models.InterFaces.Services
 
             //return roomValue;
 
-            Room updatingRoom = new Room()
+            var updatingRoom = await _room.Room.FindAsync(id);
+
+            if (updatingRoom != null)
             {
-                ID = id,
-                Name = room.Name,
-                Layout = room.Layout,
-            };
-            _room.Entry(updatingRoom).State = EntityState.Modified;
+                // Update the properties of the existing room
+                updatingRoom.Name = room.Name;
+                updatingRoom.Layout = room.Layout;
 
-            await _room.SaveChangesAsync();
-            room.ID = updatingRoom.ID;
+                // Update the entry state to Modified
+                _room.Entry(updatingRoom).State = EntityState.Modified;
 
+                // Save changes
+                await _room.SaveChangesAsync();
+            }
 
             await AddAmenityToRoom(id, room.AmenityId);
 
@@ -199,7 +219,12 @@ namespace AsyncInn.Models.InterFaces.Services
             return newRoomWithAmenity;
 
         }
-
+        /// <summary>
+        /// adding an amenity id to the room id 
+        /// </summary>
+        /// <param name="RoomID"></param>
+        /// <param name="AmenityId"></param>
+        /// <returns></returns>
         public async Task<RoomAmenities> AddAmenityToRoom(int RoomID, int AmenityId)
         {
             var addAmenityToRoom = new RoomAmenities { RoomID = RoomID, AmenityId = AmenityId };
@@ -207,7 +232,12 @@ namespace AsyncInn.Models.InterFaces.Services
             await _room.SaveChangesAsync();
             return addAmenityToRoom;
         }
-
+        /// <summary>
+        /// remove an amenity id from the room id
+        /// </summary>
+        /// <param name="roomId"></param>
+        /// <param name="amenityId"></param>
+        /// <returns></returns>
         public async Task RemoveAmenityFromRoom(int roomId, int amenityId)
         {
             var removedRoomsAmenity = await _room.RoomAmenities.FirstOrDefaultAsync(roomAmenities => roomAmenities.RoomID == roomId && roomAmenities.AmenityId == amenityId);

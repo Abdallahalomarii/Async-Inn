@@ -10,7 +10,7 @@ namespace AsyncInn.Models.InterFaces
 
         Task<AmenityDTO> GetAmenityById(int id);
 
-        Task<Amenity> UpdateAmenity(int id, Amenity amenity);
+        Task<AmenityDTO> UpdateAmenity(int id, AmenityDTO amenity);
 
         Task DeleteAmenity(int id);
     }
