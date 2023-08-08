@@ -1,11 +1,12 @@
 ﻿using AsyncInn.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 namespace AsyncInn.Data
 {
-    public class AsyncInnDbContext : DbContext
+    public class AsyncInnDbContext : IdentityDbContext<User>
     {
         public AsyncInnDbContext(DbContextOptions options) : base(options)         
         {
@@ -25,6 +26,9 @@ namespace AsyncInn.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Hotel>().HasData(
                 new Hotel() { ID = 1, Name = "AsyncInn Paris", StreetAddress = "Evil Tower", City = "Paris", State = "Paris", Country = "France", Phone = "005588756" },
                 new Hotel() { ID = 2, Name = "AsyncInn London",StreetAddress = "London Bridge", City = "London", State = "England", Country = "UK",Phone="7782215" },

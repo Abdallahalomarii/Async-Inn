@@ -101,3 +101,34 @@
         - and from the room the json will provide for me the Room detailes which is the amenity that rooms has 
         
         - and finally  we can get the ameniteis or any specific amenity that we want 
+
+- # Lab 18 Identity
+
+    - Firstly i installed a new Depandancy which called Microsoft.AspNetCore.Identity.EntityFrameWorkCore
+    by installing this package this allows us to use the IDentity Db context which has a more than one tabel 
+    that is build-in to access 
+
+    - Then i dropped my own database and removed the migration i had before. and i created a new migaration and I update the database 
+    and now the whole table from the identity in my database.
+
+    - I created 3 DTO class to get what i want from the user table that exsist inside the idnetity Table.
+    and created an interface and created to defination for the register and the login. Then i created 
+    a service inherit from the interface  to make the implemntaion of the 2 method i have from the interface.
+    also created an empty controller to handle the register and the login process. and finally i edited the confugruation of the 
+    program to let the identity work clear and added Transisnt of the user interface and the service.
+
+    - ### Here is the new changes on the code :camera:
+        
+        - ![InterFace](./IUser.png)
+        - ![controller](./usercontroller.png)
+        - ![service](./UserService.png)
+        - ![DTO](./DTO.png)
+        - ![Program](./program.png)
+        - ![Db Context](./dbcontext.png)
+
+    - ### The Output in the swagger :camera:
+
+        - #### Swagger Register
+        ![register](./register.png)
+        -  #### Swagger Login
+        ![Sign in](./signin.png)
