@@ -3,6 +3,7 @@ using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.InterFaces.Services;
 using AsyncInn.Models.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace AsyncInn
@@ -25,37 +26,73 @@ namespace AsyncInn
                 .AddDbContext<AsyncInnDbContext>
                 (options => options.UseSqlServer(connString));
 
+            builder.Services.AddIdentity<User, IdentityRole>
+                (options => 
+                options.User.RequireUniqueEmail = true)
+                .AddEntityFrameworkStores<AsyncInnDbContext>();
+
+
+            builder.Services.AddTransient<IUser, UserService>();
             builder.Services.AddTransient<IAmenity,AmenityService>();
             builder.Services.AddTransient<IRoom,RoomService>();
             builder.Services.AddTransient<IHotel,HotelService>();
             builder.Services.AddTransient<IHotelRoom,HotelRoomService>();
 
+            //builder.Services.AddSwaggerGen(options =>
+            //{
+            //    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo()
+            //    {
+            //        Title = "AsyncInn API",
+            //        Version = "v1"
+
+            //    });
+            //});
+
+            //var app = builder.Build();
+
+
+            //app.UseSwagger(opt =>
+            //{
+            //    opt.RouteTemplate = "/api/{documentName}/swagger.json";
+            //});
+
+            //app.UseSwaggerUI(opt =>
+            //{
+            //    opt.SwaggerEndpoint("/api/v1/swagger.json", "AsyncIn API");
+            //    opt.RoutePrefix = "docs";
+            //});
+
+            //app.MapControllers();
+
+            ////app.MapGet("/", () => "Hello World!");
+
+            //app.Run();
+
             builder.Services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo()
                 {
-                    Title = "AsyncInn API",
-                    Version = "v1"
-
+                    Title = "School API",
+                    Version = "v1",
                 });
             });
 
+
             var app = builder.Build();
 
-            app.UseSwagger(opt =>
+            app.UseSwagger(aptions =>
             {
-                opt.RouteTemplate = "/api/{documentName}/swagger.json";
+                aptions.RouteTemplate = "/api/{documentName}/swagger.json";
             });
 
-            app.UseSwaggerUI(opt =>
+            app.UseSwaggerUI(aptions =>
             {
-                opt.SwaggerEndpoint("/api/v1/swagger.json", "AsyncIn API");
-                opt.RoutePrefix = "docs";
+                aptions.SwaggerEndpoint("/api/v1/swagger.json", "School API");
+                aptions.RoutePrefix = "";
             });
 
             app.MapControllers();
 
-            app.MapGet("/", () => "Hello World!");
 
             app.Run();
         }
