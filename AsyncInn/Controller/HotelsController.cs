@@ -9,6 +9,8 @@ using AsyncInn.Data;
 using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
+using System.Data;
 
 namespace AsyncInn.Controller
 {
@@ -24,6 +26,8 @@ namespace AsyncInn.Controller
         }
 
         // GET: api/Hotels
+        [AllowAnonymous]
+        [Authorize(Roles = "District Manager",Policy = "Read")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<HotelDTO>>> GetHotel()
         {
@@ -35,6 +39,8 @@ namespace AsyncInn.Controller
         }
 
         // GET: api/Hotels/5
+        [AllowAnonymous]
+        [Authorize(Roles = "District Manager",Policy = "Read")]
         [HttpGet("{id}")]
         public async Task<ActionResult<HotelDTO>> GetHotel(int id)
         {
@@ -54,6 +60,9 @@ namespace AsyncInn.Controller
 
         // PUT: api/Hotels/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(Roles = "District Manager",Policy = "Update")]
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutHotel([FromRoute]int id, [FromBody] HotelDTO hotel)
         {
@@ -66,6 +75,9 @@ namespace AsyncInn.Controller
 
         // POST: api/Hotels
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(Roles = "District Manager",Policy = "Create")]
+
         [HttpPost]
         public async Task<ActionResult<Hotel>> PostHotel(HotelDTO hotel)
         {
@@ -79,6 +91,9 @@ namespace AsyncInn.Controller
         }
 
         // DELETE: api/Hotels/5
+
+        [Authorize(Roles = "District Manager",Policy = "Delete")]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHotel(int id)
         {

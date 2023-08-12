@@ -3,6 +3,7 @@ using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.InterFaces.Services;
 using AsyncInn.Models.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,35 +39,27 @@ namespace AsyncInn
             builder.Services.AddTransient<IHotel,HotelService>();
             builder.Services.AddTransient<IHotelRoom,HotelRoomService>();
 
-            //builder.Services.AddSwaggerGen(options =>
-            //{
-            //    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo()
-            //    {
-            //        Title = "AsyncInn API",
-            //        Version = "v1"
+            builder.Services.AddScoped<JwtTokenService>();
 
-            //    });
-            //});
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            options.TokenValidationParameters = JwtTokenService.GetTokenValidationParameters(builder.Configuration)
+            );
 
-            //var app = builder.Build();
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Create", policy => policy.RequireClaim("permissions", "Create"));
+                options.AddPolicy("Read", policy => policy.RequireClaim("permissions", "Read"));
+                options.AddPolicy("Update", policy => policy.RequireClaim("permissions", "Update"));
+                options.AddPolicy("Delete", policy => policy.RequireClaim("permissions", "Delete"));
+              
+            });
+            builder.Services.AddAuthorization();
 
-
-            //app.UseSwagger(opt =>
-            //{
-            //    opt.RouteTemplate = "/api/{documentName}/swagger.json";
-            //});
-
-            //app.UseSwaggerUI(opt =>
-            //{
-            //    opt.SwaggerEndpoint("/api/v1/swagger.json", "AsyncIn API");
-            //    opt.RoutePrefix = "docs";
-            //});
-
-            //app.MapControllers();
-
-            ////app.MapGet("/", () => "Hello World!");
-
-            //app.Run();
 
             builder.Services.AddSwaggerGen(options =>
             {

@@ -3,6 +3,9 @@ using AsyncInn.Models.InterFaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using NuGet.Common;
+using System.Data;
+using System.Security.Claims;
 
 namespace AsyncInn.Models.Services
 {
@@ -10,9 +13,12 @@ namespace AsyncInn.Models.Services
     {
         private readonly UserManager<User> _userManager;
 
-        public UserService(UserManager<User> userManager)
+        private readonly JwtTokenService _JwtTokenService;
+
+        public UserService(UserManager<User> userManager, JwtTokenService jwtTokenService)
         {
             _userManager = userManager;
+            this._JwtTokenService = jwtTokenService;
         }
 
         public async Task<UserDTO> Authenticate(string userName, string password)
@@ -26,44 +32,85 @@ namespace AsyncInn.Models.Services
                 return new UserDTO
                 {
                     ID = user.Id,
-                    Username = userName
+                    Username = userName,
+                    Token = await _JwtTokenService.GetToken(user, System.TimeSpan.FromSeconds(60)),
+                    Roles = await _userManager.GetRolesAsync(user)
                 };
             }
             return null;
         }
 
-        public async Task<UserDTO> Register(RegisterDTO Data , ModelStateDictionary modelState)
+        public async Task<UserDTO> GetUser(ClaimsPrincipal principal)
         {
-            var user = new User()
+            var user = await _userManager.GetUserAsync(principal);
+
+            return new UserDTO
             {
-                UserName = Data.UserName,
-                Email = Data.Email,
-                PhoneNumber = Data.PhoneNumber
+                ID = user.Id,
+                Username = user.UserName,
+                Token = await _JwtTokenService.GetToken(user, System.TimeSpan.FromSeconds(60)),
+                Roles = await _userManager.GetRolesAsync(user)
 
             };
+        }
 
-            var result = await _userManager.CreateAsync(user,Data.Password);
+        public async Task<UserDTO> Register(RegisterDTO Data, ModelStateDictionary modelState, ClaimsPrincipal User)
+        {
+            bool isDistrictManager = User.IsInRole("District Manager");
+            bool isPropertyManager = User.IsInRole("Property Manager");
 
-            if (result.Succeeded)
+            // Role-specific registration logic
+            if (isDistrictManager || (isPropertyManager && Data.Roles.Contains("Agent")))
             {
-                return new UserDTO
+                var user = new User()
                 {
-                    ID = user.Id,
-                    Username = user.UserName
-
+                    UserName = Data.UserName,
+                    Email = Data.Email,
+                    PhoneNumber = Data.PhoneNumber
                 };
-            }
 
-            foreach (var error in result.Errors)
+                var result = await _userManager.CreateAsync(user, Data.Password);
+
+                if (result.Succeeded)
+                {
+                    // Assign roles based on role-specific conditions
+                    if (isDistrictManager)
+                    {
+                        await _userManager.AddToRolesAsync(user, Data.Roles);
+                    }
+                    else if (isPropertyManager && Data.Roles.Contains("Agent"))
+                    {
+                        await _userManager.AddToRolesAsync(user, new[] { "Agent" });
+                    }
+
+                    return new UserDTO
+                    {
+                        ID = user.Id,
+                        Username = user.UserName,
+                        Token = await _JwtTokenService.GetToken(user, System.TimeSpan.FromSeconds(60)),
+                        Roles = await _userManager.GetRolesAsync(user)
+                    };
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        var errorKey = error.Code.Contains("Password") ? nameof(Data.Password) :
+                                        error.Code.Contains("Email") ? nameof(Data.Email) :
+                                        error.Code.Contains("UserName") ? nameof(Data.UserName) :
+                                        "";
+
+                        modelState.AddModelError(errorKey, error.Description);
+                    }
+
+                    return null; // Return some appropriate response for a failed user creation
+                }
+            }
+            else
             {
-                var errorKey = error.Code.Contains("Password") ? nameof(Data.Password) :
-                                error.Code.Contains("Email") ? nameof(Data.Email) :
-                                error.Code.Contains("UserName") ? nameof(Data.UserName) :
-                                "";
-
-                modelState.AddModelError(errorKey, error.Description);
+                modelState.AddModelError("", "You don't have permission to create this type of account.");
+                return null;
             }
-            return null;
         }
     }
 }

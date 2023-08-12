@@ -4,6 +4,7 @@ using AsyncInn.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AsyncInn.Migrations
 {
     [DbContext(typeof(AsyncInnDbContext))]
-    partial class AsyncInnDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230811190335_newRoleUpdated")]
+    partial class newRoleUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -360,77 +363,77 @@ namespace AsyncInn.Migrations
                         {
                             Id = 12,
                             ClaimType = "permissions",
-                            ClaimValue = "Create",
+                            ClaimValue = "FullCRUD",
                             RoleId = "district manager"
                         },
                         new
                         {
                             Id = 13,
                             ClaimType = "permissions",
-                            ClaimValue = "Read",
-                            RoleId = "district manager"
+                            ClaimValue = "HotelRoom/Read",
+                            RoleId = "property manager"
                         },
                         new
                         {
                             Id = 14,
                             ClaimType = "permissions",
-                            ClaimValue = "Update",
-                            RoleId = "district manager"
+                            ClaimValue = "HotelRoom/Create",
+                            RoleId = "property manager"
                         },
                         new
                         {
                             Id = 15,
                             ClaimType = "permissions",
-                            ClaimValue = "Delete",
-                            RoleId = "district manager"
+                            ClaimValue = "HotelRoom/Update",
+                            RoleId = "property manager"
                         },
                         new
                         {
                             Id = 16,
                             ClaimType = "permissions",
-                            ClaimValue = "Create",
+                            ClaimValue = "Amenity/Read",
                             RoleId = "property manager"
                         },
                         new
                         {
                             Id = 17,
                             ClaimType = "permissions",
-                            ClaimValue = "Read",
+                            ClaimValue = "Amenity/Create",
                             RoleId = "property manager"
                         },
                         new
                         {
                             Id = 18,
                             ClaimType = "permissions",
-                            ClaimValue = "Update",
+                            ClaimValue = "Amenity/Update",
                             RoleId = "property manager"
                         },
                         new
                         {
                             Id = 19,
                             ClaimType = "permissions",
-                            ClaimValue = "Create",
+                            ClaimValue = "HotelRoom/Read",
                             RoleId = "agent"
                         },
                         new
                         {
                             Id = 20,
                             ClaimType = "permissions",
-                            ClaimValue = "Read",
+                            ClaimValue = "HotelRoom/Update",
                             RoleId = "agent"
                         },
                         new
                         {
                             Id = 21,
                             ClaimType = "permissions",
-                            ClaimValue = "Update",
+                            ClaimValue = "Amenity/Create",
                             RoleId = "agent"
                         },
                         new
                         {
                             Id = 22,
                             ClaimType = "permissions",
-                            ClaimValue = "Delete",
+                            ClaimValue = "Amenity/Delete",
                             RoleId = "agent"
                         });
                 });
