@@ -3,8 +3,11 @@ using AsyncInn.Models;
 using AsyncInn.Models.DTO;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.InterFaces.Services;
+using AsyncInn.Models.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 
 namespace AsyncInnTest
 {
@@ -14,7 +17,11 @@ namespace AsyncInnTest
 
 
         protected readonly AsyncInnDbContext _db;
+        protected readonly JwtTokenService _JwtTokenService;
+        private readonly UserManager<User> _userManager;
         protected readonly IRoom _room;
+        protected readonly IUser _user;
+
 
         public Mock()
         {
@@ -29,6 +36,8 @@ namespace AsyncInnTest
             _db.Database.EnsureCreated();
 
             _room = new RoomService(_db);
+
+            _user = new UserService(_userManager, _JwtTokenService);
         }
 
         protected async Task<Amenity> CreateAndSaveAmenity()
@@ -117,10 +126,16 @@ namespace AsyncInnTest
 
         }
 
-    
+        protected static IUser SetupUserMock(UserDTO expectedResult)
+        {
+            var userMock = new Mock<IUser>();
 
-       
+            userMock.Setup(u => u.Authenticate(It.IsAny<string>(), It.IsAny<string>()))
+                .ReturnsAsync(expectedResult);
 
+            return userMock.Object;
+        }
+                
         public void Dispose()
         {
             _db?.Dispose();

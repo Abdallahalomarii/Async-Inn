@@ -132,3 +132,20 @@
         ![register](./register.png)
         -  #### Swagger Login
         ![Sign in](./signin.png)
+
+- # Lab 19 JWT and authorize and the claims and roles 
+
+    - I added an JWT service in order to create a token for any user when he register or sign in 
+     and added a jwt secret json file in the configuration file to encrypt it 
+
+     - then i added an authorization in the program file to make the policy take the claims that seeds in the dbcontext 
+     and also i seed 4 roles in the database and each one has own claims policy 
+
+     - in the controller i modified the routes :
+        - The district manager can make full CRUD operation on all routes and also can create accounts for all roles
+        - the poperty manager can add read update the hotel rooms to hotel and the amineties to room, and also can make a agent account only
+        - the Agent role can update and add hotelroom to hotel and add/ delete amenites to room and thats all
+        - the annyoums user can only read from all routes 
+
+
+        

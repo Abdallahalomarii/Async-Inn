@@ -9,6 +9,7 @@ using AsyncInn.Data;
 using AsyncInn.Models;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AsyncInn.Controller
 {
@@ -24,6 +25,8 @@ namespace AsyncInn.Controller
         }
 
         // GET: api/HotelRooms
+        [AllowAnonymous]
+        [Authorize(Roles = "District Manager , Property Manager, Agent", Policy = "Read")]
         [HttpGet]
         [Route("/api/Hotels/{hotelId}/Rooms")]
         public async Task<ActionResult<IEnumerable<HotelRoomDTO>>> GetHotelRooms([FromRoute] int hotelId)
@@ -39,6 +42,11 @@ namespace AsyncInn.Controller
         }
 
         // GET: api/HotelRooms/5
+
+        [AllowAnonymous]
+
+        [Authorize(Roles = "District Manager , Property Manager, Agent", Policy = "Read")]
+
         [HttpGet("/api/Hotels/{hotelId}/Rooms/{roomNumber}")]
         public async Task<ActionResult<HotelRoomDTO>> GetHotelRoom(int hotelId, int roomNumber)
         {
@@ -54,6 +62,10 @@ namespace AsyncInn.Controller
 
         // PUT: api/HotelRooms/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(Roles = "District Manager , Property Manager, Agent", Policy = "Update")]
+
+
         [HttpPut]
         [Route("/api/Hotels/{hotelId}/Rooms/{roomNumber}")]
         public async Task<IActionResult> PutHotelRoom([FromRoute] int hotelId, [FromRoute] int roomNumber, [FromBody] HotelRoomDTO hotelRoom)
@@ -66,6 +78,10 @@ namespace AsyncInn.Controller
 
         // POST: api/HotelRooms
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [Authorize(Roles = "District Manager , Property Manager", Policy = "Create")]
+
+
         [HttpPost]
         [Route("/api/Hotels/{hotelId}/Rooms")]
         public async Task<ActionResult<HotelRoomDTO>> PostHotelRoom(HotelRoomDTO hotelRoom, int hotelId)
@@ -75,6 +91,9 @@ namespace AsyncInn.Controller
         }
 
         // DELETE: api/HotelRooms/5
+
+        [Authorize(Roles = "District Manager", Policy = "Delete")]
+
         [HttpDelete]
         [Route("/api/Hotels/{hotelId}/Rooms/{roomNumber}")]
         public  async Task<IActionResult> DeleteHotelRoom(int hotelId, int roomNumber)
@@ -92,6 +111,7 @@ namespace AsyncInn.Controller
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet]
         [Route("/api/Hotels/byName/{name}")]
         public async Task<ActionResult<IEnumerable<HotelRoom>>> getHotelRoomsByName([FromRoute] string name)

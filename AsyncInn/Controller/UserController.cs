@@ -1,10 +1,12 @@
 ﻿using AsyncInn.Models;
 using AsyncInn.Models.DTO;
 using AsyncInn.Models.InterFaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
 
 namespace AsyncInn.Controller
 {
@@ -30,19 +32,36 @@ namespace AsyncInn.Controller
             }
             return Unauthorized();
         }
-
+        //[Authorize(Roles = "District Manager , Property Manager")]
         [HttpPost("register")]
 
         public async Task<ActionResult<UserDTO>> Register(RegisterDTO Data)
         {
-            var newUser = await _context.Register(Data, this.ModelState);
+            //if (!User.IsInRole("District Manager") && !User.IsInRole("Property Manager"))
+            //{
+            //    return Forbid();
+            //}
+            var newUser = await _context.Register(Data, this.ModelState, User);
 
             if (ModelState.IsValid)
             {
-                return newUser;
+                if (newUser != null) 
+                    return newUser;
+
+                else
+                    return NotFound();
             }
 
             return BadRequest(new ValidationProblemDetails(ModelState));
+        }
+
+        
+        [HttpGet("Profile")]
+        public async Task<ActionResult<UserDTO>> Profile()
+        {
+            var profile = await _context.GetUser(this.User);
+
+            return Ok(profile);
         }
 
 

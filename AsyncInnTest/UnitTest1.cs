@@ -1,9 +1,16 @@
+using AsyncInn.Controller;
 using AsyncInn.Models;
 using AsyncInn.Models.DTO;
 using AsyncInn.Models.InterFaces;
 using AsyncInn.Models.InterFaces.Services;
 using AsyncInn.Models.Services;
 using AsyncInnTest;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Moq;
+using System.Security.Claims;
 
 namespace AsyncInnTest
 {
@@ -97,12 +104,12 @@ namespace AsyncInnTest
         }
 
         [Fact]
-          public async Task HotelService_Should_Add_Hotel_Room()
+        public async Task HotelService_Should_Add_Hotel_Room()
         {
             // Arrange
             var room = await CreateAndSaveRoom();
             var hotel = await CreateAndSaveHotel();
-            
+
             var hotelRoom = new HotelRoomDTO()
             {
                 HotelID = hotel.ID,
@@ -112,7 +119,7 @@ namespace AsyncInnTest
                 RoomID = room.ID
             };
 
-            var hotelRoomService = new HotelRoomService(_db,_room);
+            var hotelRoomService = new HotelRoomService(_db, _room);
 
             // Act
             await hotelRoomService.Create(hotelRoom, hotel.ID);
@@ -142,20 +149,20 @@ namespace AsyncInnTest
                 RoomID = room.ID
             };
 
-            var hotelRoomService = new HotelRoomService(_db,_room);
+            var hotelRoomService = new HotelRoomService(_db, _room);
 
             await hotelRoomService.Create(hotelRoom, hotel.ID);
 
             var hotelService = new HotelService(_db);
 
-            
+
             var result = await hotelService.GetHotelById(hotel.ID);
 
             Assert.Contains(result.Rooms, x => x.RoomID == room.ID);
 
             Assert.Contains(result.Rooms, x => x.HotelID == hotel.ID);
 
-             var room2 = await CreateAndSaveRoom2();
+            var room2 = await CreateAndSaveRoom2();
 
             var newHotelRoom = new HotelRoomDTO()
             {
@@ -209,8 +216,8 @@ namespace AsyncInnTest
             await hotelRoomService.DeleteHotelRooms(hotel.ID, hotelRoom.RoomNumber);
             result = await hotelService.GetHotelById(hotel.ID);
             Assert.DoesNotContain(result.Rooms, x => x.RoomID == room.ID);
-                   
-           Assert.DoesNotContain(result.Rooms, x => x.HotelID == hotel.ID);
+
+            Assert.DoesNotContain(result.Rooms, x => x.HotelID == hotel.ID);
         }
 
         [Fact]
@@ -218,7 +225,7 @@ namespace AsyncInnTest
         {
             var hotel = await CreateAndSaveHotel();
             var hotel2 = await CreateAndSaveHotel2();
-           
+
             var hotelService = new HotelService(_db);
 
             var result = await hotelService.GetHotels();
@@ -234,5 +241,90 @@ namespace AsyncInnTest
             Assert.Contains(result, x => x.ID == hotel2.ID);
 
         }
+
+        [Fact]
+        public async Task Register_User_As_District_Manager()
+        {
+            // Arrange
+            var userMock = new Mock<IUser>();
+            var userManagerMock = new Mock<UserManager<User>>(MockBehavior.Strict, null, null, null, null, null, null, null, null);
+            var jwtTokenServiceMock = new Mock<JwtTokenService>(null, null);
+
+            var roles = new List<Claim> { new Claim(ClaimTypes.Role, "District Manager") };
+            var userPrincipal = new ClaimsPrincipal(new ClaimsIdentity(roles));
+
+            var controller = new UserController(userMock.Object);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = userPrincipal
+                }
+            };
+
+            var registerDto = new RegisterDTO
+            {
+                UserName = "TestUser",
+                Email = "test@example.com",
+                PhoneNumber = "123456789",
+                Password = "P@ssw0rd",
+                Roles = new List<string> { "Agent" } // Adjust the roles as needed
+            };
+
+            var expectedResult = new UserDTO
+            {
+                ID = "UserId",
+                Username = registerDto.UserName,
+                Token = "MockedToken",
+                Roles = new List<string> { "Agent" } // Adjust the roles as needed
+            };
+
+            userMock.Setup(u => u.Register(It.IsAny<RegisterDTO>(), It.IsAny<ModelStateDictionary>(), It.IsAny<ClaimsPrincipal>()))
+                            .ReturnsAsync(expectedResult);
+
+            // Act
+            var result = await controller.Register(registerDto);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<UserDTO>>(result);
+            var userDto = Assert.IsType<UserDTO>(actionResult.Value);
+
+            Assert.Equal(expectedResult.Username, userDto.Username);
+            Assert.Equal(expectedResult.Roles, userDto.Roles);
+
+        }
+        [Fact]
+        public async Task SignIn_User_Successfully()
+        {
+            // Arrange
+            var expectedResult = new UserDTO
+            {
+                ID = "UserId",
+                Username = "TestUser",
+                Token = "MockedToken",
+                Roles = new List<string> { "Agent" }
+            };
+
+            var userMock = SetupUserMock(expectedResult);
+            var controller = new UserController(userMock);
+
+            var loginDto = new LoginDTO
+            {
+                Username = "TestUser",
+                Password = "P@ssw0rd"
+            };
+
+            // Act
+            var result = await controller.SignIn(loginDto);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<UserDTO>>(result);
+            var userDto = Assert.IsType<UserDTO>(actionResult.Value);
+
+            Assert.Equal(expectedResult.Username, userDto.Username);
+            Assert.Equal(expectedResult.Roles, userDto.Roles);
+        }
+
+       
     }
 }
